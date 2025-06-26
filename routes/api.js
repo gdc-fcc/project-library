@@ -5,6 +5,7 @@
 *       
 *       
 */
+const Book = require('../database.js')
 
 'use strict';
 
@@ -12,13 +13,27 @@ module.exports = function (app) {
 
   app.route('/api/books')
     .get(function (req, res){
-      //response will be array of book objects
-      //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
+      Book.find()
+        .then(result => res.json(result))
+        .catch(err => {
+          console.log(err)
+          res.status(500).send('Server error')
+        })
     })
     
     .post(function (req, res){
       let title = req.body.title;
-      //response will contain new book object including atleast _id and title
+      if (!title) {
+        res.json("missing required field title")
+        return;
+      }
+      const book = new Book({title});
+      book.save()
+         .then(result => res.json(result))
+         .catch(err => {
+          console.log(err);
+          res.status(500).send("Server error")
+         })
     })
     
     .delete(function(req, res){
@@ -30,7 +45,19 @@ module.exports = function (app) {
   app.route('/api/books/:id')
     .get(function (req, res){
       let bookid = req.params.id;
-      //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      Book.findById(bookid)
+        .then(book => {
+          if (!book) {
+            res.json('no book exists')
+          } else {
+            res.json(book)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          // server error?
+          res.json('no book exists')
+        })
     })
     
     .post(function(req, res){
