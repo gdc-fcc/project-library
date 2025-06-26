@@ -27,7 +27,7 @@ module.exports = function (app) {
         res.json("missing required field title")
         return;
       }
-      const book = new Book({title});
+      const book = new Book({title, commentcount: 0});
       book.save()
          .then(result => res.json(result))
          .catch(err => {
