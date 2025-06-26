@@ -59,7 +59,6 @@ module.exports = function (app) {
           }
         })
         .catch(err => {
-          console.log(err)
           // server error?
           res.json('no book exists')
         })
