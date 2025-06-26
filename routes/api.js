@@ -37,7 +37,12 @@ module.exports = function (app) {
     })
     
     .delete(function(req, res){
-      //if successful response will be 'complete delete successful'
+      Book.deleteMany()
+        .then(_result => res.send('complete delete successful'))
+        .catch(err => {
+          console.log(err)
+          res.status(500).send('Server error')
+        })
     });
 
 
@@ -63,12 +68,42 @@ module.exports = function (app) {
     .post(function(req, res){
       let bookid = req.params.id;
       let comment = req.body.comment;
+      if (!comment) {
+        res.json('missing required field comment')
+        return
+      }
+      Book.findById(bookid)
+        .then(book => {
+          if (!book) {
+            res.json('no book exists')
+            return
+          }
+          book.comments.push(comment)
+          book.commentcount++;
+          book.save()
+          res.json(book)
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).send("Server error")
+        })
       //json res format same as .get
     })
     
     .delete(function(req, res){
       let bookid = req.params.id;
-      //if successful response will be 'delete successful'
+      Book.findByIdAndDelete(bookid)
+        .then(result => {
+          if (!result) {
+            res.send('no book exists')
+          } else {
+            res.send('delete successful')
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).send('Server error')
+        })
     });
   
 };
